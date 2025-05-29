@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "LadyCom",
   description: "LadyCom - Connect and communicate with ease.",
-  url: "https://yourdomain.com", 
+  url: "https://lady-com.vercel.app/", 
   image: "https://yourdomain.com/og-image.png", 
   twitterHandle: "@yourTwitterHandle", 
 };
