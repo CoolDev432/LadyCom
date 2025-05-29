@@ -57,7 +57,7 @@ async function postChat() {
                     <IconMessage className="w-6 h-6 md:w-8 md:h-8" />
                     <h1 className="text-2xl md:text-3xl">Forum</h1>
                 </div>
-                <h1 className='mt-5 text-gray-500'>💡 People won't see your name. You will remain anonymous.</h1>
+<h1 className='mt-5 text-gray-500'>💡 People won&apos;t see your name. You will remain anonymous.</h1>
             </div>
 
             {/* Forum Box */}
