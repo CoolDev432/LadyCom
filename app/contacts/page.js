@@ -6,23 +6,30 @@ import { Button } from '@/components/ui/button'
 import { useUser } from '@clerk/nextjs'
 
 const Contacts = () => {
-    const { user } = useUser();
-    const [Email, setEmail] = useState(user?.emailAddresses[0].emailAddress)
+    const { user, isLoaded } = useUser()
+
+    const [email, setEmail] = useState('')
     const [sosName, setSosName] = useState('')
     const [sosNumber, setSosNumber] = useState('')
     const [saved, setSaved] = useState(false)
     const [sending, setSending] = useState(false)
     const [sendSuccess, setSendSuccess] = useState(null)
 
+    // Load email and localStorage items when Clerk loads
     useEffect(() => {
+        if (isLoaded && user) {
+            const userEmail = user.emailAddresses[0]?.emailAddress || ''
+            setEmail(userEmail)
+        }
+
         const storedName = localStorage.getItem('sosName')
         const storedNumber = localStorage.getItem('sosNumber')
         if (storedName) setSosName(storedName)
         if (storedNumber) setSosNumber(storedNumber)
-    }, [])
+    }, [isLoaded, user])
 
     const handleSave = () => {
-        if (sosNumber.trim() === '' || sosName.trim() === '') {
+        if (sosName.trim() === '' || sosNumber.trim() === '') {
             alert('Please enter both name and number.')
             return
         }
@@ -40,20 +47,14 @@ const Contacts = () => {
         setSending(true)
         setSendSuccess(null)
 
-        const senderName = user?.firstName || "User"
-        const email = Email || "No email"
+        const senderName = user?.firstName || 'User'
+        const message = `SOS Alert! Please contact ${email} (${senderName}).`
 
         try {
-            const message = `SOS Alert! Please contact ${email} (${senderName}).`
-
             const response = await fetch(`/api/sendSMS?to=${encodeURIComponent(sosNumber)}&text=${encodeURIComponent(message)}`)
             const data = await response.json()
 
-            if (response.ok && data.success) {
-                setSendSuccess(true)
-            } else {
-                setSendSuccess(false)
-            }
+            setSendSuccess(response.ok && data.success)
         } catch (error) {
             setSendSuccess(false)
         } finally {
@@ -92,13 +93,12 @@ const Contacts = () => {
                     />
                 </div>
                 <Button
-                    className="cursor-pointer mt-5"
-                    onClick={handleSendSMS}
-                    disabled={sending || !user}
+                    className="cursor-pointer mt-2"
+                    onClick={handleSave}
+                    disabled={!user}
                 >
-                    {sending ? 'Sending...' : 'Send SMS'}
+                    Save Contact
                 </Button>
-
             </div>
 
             {/* Alert */}
@@ -116,7 +116,7 @@ const Contacts = () => {
                     <Button
                         className="cursor-pointer mt-5"
                         onClick={handleSendSMS}
-                        disabled={sending}
+                        disabled={sending || !user}
                     >
                         {sending ? 'Sending...' : 'Send SMS'}
                     </Button>
